@@ -33,7 +33,9 @@ export default function SpotifySidebar(): JSX.Element {
       <div>
         Current Song: {SONGS[0].name} <Button size='xs'>Vote Skip</Button>
       </div>
-      <div> Upcoming Songs: </div>
+      <Heading fontSize='l' as='h2'>
+        Upcoming Songs
+      </Heading>
       <OrderedList>
         {SONGS.slice(1).map(song => (
           <ListItem key={song.id}>
@@ -45,7 +47,9 @@ export default function SpotifySidebar(): JSX.Element {
           </ListItem>
         ))}
       </OrderedList>
-      <div> Add Song </div>
+      <Heading fontSize='l' as='h2'>
+        Spotify Controls
+      </Heading>
       <div>
         Search: <Input size='sm' />
       </div>
