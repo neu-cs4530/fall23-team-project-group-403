@@ -1,7 +1,19 @@
-import { Heading, ListItem, OrderedList, StackDivider, VStack, Button, Input} from '@chakra-ui/react';
+import {
+  Heading,
+  ListItem,
+  OrderedList,
+  StackDivider,
+  VStack,
+  Button,
+  Input,
+} from '@chakra-ui/react';
 import React from 'react';
 
-const sorted = [{id: '1', name: 'song1'}, {id: '2', name: 'song2'}, {id: '3', name: 'song3'}];
+const SONGS = [
+  { id: '1', name: 'song1' },
+  { id: '2', name: 'song2' },
+  { id: '3', name: 'song3' },
+];
 
 export default function SpotifySidebar(): JSX.Element {
   return (
@@ -19,23 +31,21 @@ export default function SpotifySidebar(): JSX.Element {
         Spotify Controls
       </Heading>
       <div>
-        Current Song: {sorted[0].name} <Button size='xs'>Vote Skip</Button>
+        Current Song: {SONGS[0].name} <Button size='xs'>Vote Skip</Button>
       </div>
-      <div>
-        Upcoming Songs:
-      </div>
+      <div> Upcoming Songs: </div>
       <OrderedList>
-        {sorted.slice(1).map(song => (
+        {SONGS.slice(1).map(song => (
           <ListItem key={song.id}>
             <div>
-              {song.name} <Button size='xs'>Upvote</Button><Button size='xs'>Downvote</Button>
+              {song.name}
+              <Button size='xs'>Upvote</Button>
+              <Button size='xs'>Downvote</Button>
             </div>
           </ListItem>
         ))}
       </OrderedList>
-      <div>
-        Add Song
-      </div>
+      <div> Add Song </div>
       <div>
         Search: <Input size='sm' />
       </div>
