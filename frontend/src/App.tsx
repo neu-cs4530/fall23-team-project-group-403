@@ -18,6 +18,7 @@ import TownControllerContext from './contexts/TownControllerContext';
 import LoginControllerContext from './contexts/LoginControllerContext';
 import { TownsServiceClient } from './generated/client';
 import { nanoid } from 'nanoid';
+import { FirebaseProvider } from './firebase';
 
 function App() {
   const [townController, setTownController] = useState<TownController | null>(null);
@@ -128,13 +129,15 @@ function AppOrDebugApp(): JSX.Element {
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <AppStateProvider>
-            <AppOrDebugApp />
-          </AppStateProvider>
-        </MuiThemeProvider>
-      </ChakraProvider>
+      <FirebaseProvider>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <AppStateProvider>
+              <AppOrDebugApp />
+            </AppStateProvider>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </FirebaseProvider>
     </BrowserRouter>
   );
 }
