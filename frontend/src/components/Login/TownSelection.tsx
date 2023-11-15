@@ -24,6 +24,7 @@ import { Town } from '../../generated/client';
 import useLoginController from '../../hooks/useLoginController';
 import TownController from '../../classes/TownController';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
+import { useQueue } from '../../hooks/useQueue';
 
 export default function TownSelection(): JSX.Element {
   const [userName, setUserName] = useState<string>('');
@@ -37,6 +38,7 @@ export default function TownSelection(): JSX.Element {
   const { connect: videoConnect } = useVideoContext();
 
   const toast = useToast();
+  const { createNewQueue } = useQueue();
 
   const updateTownListings = useCallback(() => {
     townsService.listTowns().then(towns => {
@@ -182,6 +184,9 @@ export default function TownSelection(): JSX.Element {
         friendlyName: newTownName,
         isPubliclyListed: newTownIsPublic,
       });
+      
+      const createQueue = await createNewQueue(newTownInfo.townID, newTownName);
+    
       clearTimeout(connectWatchdog);
       setIsJoining(false);
       if (loadingToast) {
