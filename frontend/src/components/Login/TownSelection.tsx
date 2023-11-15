@@ -185,7 +185,7 @@ export default function TownSelection(): JSX.Element {
         isPubliclyListed: newTownIsPublic,
       });
       
-      const createQueue = await createNewQueue(newTownInfo.townID, newTownName);
+      await createNewQueue(newTownInfo.townID, newTownName);
     
       clearTimeout(connectWatchdog);
       setIsJoining(false);

@@ -29,6 +29,15 @@ jest.mock('@chakra-ui/react', () => {
     useToast: mockUseToast,
   };
 });
+// Mocking the entire useQueue module
+jest.mock('../../hooks/useQueue', () => ({
+  // make the create call to the DB be successful and resolve
+  useQueue: () => ({
+    createNewQueue: jest.fn().mockResolvedValue('mockedQueueId'),
+    queue: [],
+  }),
+}));
+
 function toCancelablePromise<T>(p: T): CancelablePromise<T> {
   return new CancelablePromise(async resolve => {
     resolve(p);
