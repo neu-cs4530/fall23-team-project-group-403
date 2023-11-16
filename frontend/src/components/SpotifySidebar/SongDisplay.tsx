@@ -1,59 +1,39 @@
 // Componant that shows the current song and the upcoming songs
 // Allows users to vote on upcoming songs
 // Allows users to vote to skip the current song
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import SongBox from './SongBox';
 import { useQueue } from '../../hooks/useQueue';
 
-import {
-  Heading,
-  ListItem,
-  OrderedList,
-  StackDivider,
-  VStack,
-  Button,
-  Input,
-  useToast,
-  toast,
-} from '@chakra-ui/react';
-
-const SONGS = [
-  { id: '1', name: 'song1', positive_votes: 0, negative_votes: 0 },
-  { id: '2', name: 'song2' },
-  { id: '3', name: 'song3' },
-];
+import { Heading, ListItem, OrderedList, Button, useToast, Text } from '@chakra-ui/react';
 
 export default function SongsDisplay(): JSX.Element {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // fetch songs
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
   const { queue } = useQueue();
-  const [songs, setSongs] = useState(queue);
   const voteToast = useToast();
 
-  console.log(queue);
   if (queue.length === 0) {
     return <></>;
   }
+
   return (
     <div>
-      <div>
-        Current Song: {songs[0].name} <Button size='xs'>Vote Skip</Button>
-      </div>
+      <Heading fontSize='l' as='h2'>
+        Current Song:
+      </Heading>
+      <Text>
+        {queue[0].name} <Button size='xs'>Vote Skip</Button>
+      </Text>
       <Heading fontSize='l' as='h2'>
         Upcoming Songs
       </Heading>
       <OrderedList>
-        {songs.slice(1).map(song => (
+        {queue.slice(1).map(song => (
           <ListItem key={song.id}>
             <SongBox
               title={song.name}
-              artist={'artist'}
+              artist={song.artist}
               rating={0}
-              onUpvote={() => { 
+              onUpvote={() => {
                 voteToast({
                   title: 'Upvote: ' + song.name,
                   duration: 1000,

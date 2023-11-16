@@ -24,8 +24,6 @@ export default function SpotifySidebar(): JSX.Element {
       borderRadius='4px'>
       <SongDisplay />
       <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
-      <SongDisplay />
-      <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
       <div>
         Search: <Input size='sm' />
       </div>
