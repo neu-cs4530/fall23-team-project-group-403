@@ -6,6 +6,10 @@ import {
   query,
   where,
   DocumentData,
+  doc,
+  updateDoc,
+  setDoc,
+  getDocs,
 } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 
@@ -29,22 +33,22 @@ export function useQueue() {
         // Hardcode the list of songs for this iteration
         queue: [
           {
+            id: '0',
             name: 'Never Gonna Give You Up',
             artist: 'Rick Astley',
-            upvote: 0,
-            downvote: 0,
+            voteCount: 0,
           },
           {
+            id: '1',
             name: 'Last Nite',
             artist: 'The Strokes',
-            upvote: 0,
-            downvote: 0,
+            voteCount: 0,
           },
           {
+            id: '2',
             name: 'Heading South',
             artist: 'Zach Bryan',
-            upvote: 0,
-            downvote: 0,
+            voteCount: 0,
           },
         ],
       };
@@ -77,5 +81,20 @@ export function useQueue() {
     fetchQueue();
   }, [db, townController?.townID]);
 
-  return { createNewQueue, queue };
+  const vote = async (songID: string, number: 1 | -1) => {
+    const queueCollection = collection(db, 'Queue');
+    const q = query(queueCollection, where('townID', '==', townController?.townID));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach(async (townDoc) => {
+      const docRef = doc(queueCollection, townDoc.id);
+      // Check if the current document's songID matches the provided songID
+      if (townDoc.data.id === songID) {
+        const updatedVoteCount = townDoc.data.name + number;
+        // Update the voteCount for the specific song
+        await updateDoc(docRef, { voteCount: updatedVoteCount });
+      }
+    });
+  };
+  return { createNewQueue, queue, vote };
 }

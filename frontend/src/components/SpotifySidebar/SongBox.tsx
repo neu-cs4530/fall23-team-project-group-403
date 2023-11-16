@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 interface SongProps {
   title: string;
   artist: string;
-  rating: number;
+  voteCount: number;
   onUpvote: () => void;
   onDownvote: () => void;
 }
@@ -12,17 +12,33 @@ interface SongProps {
 export default function Song({
   title,
   artist,
-  rating,
+  voteCount,
   onUpvote,
   onDownvote,
 }: SongProps): JSX.Element {
-  const [ hasVoted, setHasVoted ] = React.useState(false);
+  const [hasVoted, setHasVoted] = React.useState(false);
 
   return (
-      <div>
-        {title} - {artist}
-        <Button disabled={hasVoted} size='xs' onClick={() => {setHasVoted(true); onUpvote();}}>Upvote</Button>
-        <Button disabled={hasVoted} size='xs' onClick={() => {setHasVoted(true); onDownvote();}}>Downvote</Button>
-      </div>
+    <div>
+      {title} - {artist}
+      <Button
+        //disabled={hasVoted}
+        size='xs'
+        onClick={() => {
+          setHasVoted(true);
+          onUpvote();
+        }}>
+        Upvote
+      </Button>
+      <Button
+        //disabled={hasVoted}
+        size='xs'
+        onClick={() => {
+          setHasVoted(true);
+          onDownvote();
+        }}>
+        Downvote
+      </Button>
+    </div>
   );
 }

@@ -8,7 +8,7 @@ import { useQueue } from '../../hooks/useQueue';
 import { Heading, ListItem, OrderedList, Button, useToast, Text } from '@chakra-ui/react';
 
 export default function SongsDisplay(): JSX.Element {
-  const { queue } = useQueue();
+  const { queue, vote } = useQueue();
   const voteToast = useToast();
 
   if (queue.length === 0) {
@@ -39,6 +39,7 @@ export default function SongsDisplay(): JSX.Element {
                   duration: 1000,
                   isClosable: true,
                 });
+                vote(song.id, 1);
               }}
               onDownvote={() => {
                 voteToast({
@@ -46,6 +47,7 @@ export default function SongsDisplay(): JSX.Element {
                   duration: 1000,
                   isClosable: true,
                 });
+                vote(song.id, -1);
               }}
             />
           </ListItem>
