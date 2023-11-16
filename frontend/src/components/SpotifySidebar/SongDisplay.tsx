@@ -3,6 +3,8 @@
 // Allows users to vote to skip the current song
 import React, { useState, useEffect } from 'react';
 import SongBox from './SongBox';
+import { useQueue } from '../../hooks/useQueue';
+
 import {
   Heading,
   ListItem,
@@ -22,13 +24,20 @@ const SONGS = [
 ];
 
 export default function SongsDisplay(): JSX.Element {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // fetch songs
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   const { queue } = useQueue();
+  const [songs, setSongs] = useState(queue);
+  const voteToast = useToast();
+
   console.log(queue);
   if (queue.length === 0) {
     return <></>;
   }
-  const [songs, setSongs] = useState(queue);
-  const toast = useToast();
   return (
     <div>
       <div>
@@ -44,14 +53,15 @@ export default function SongsDisplay(): JSX.Element {
               title={song.name}
               artist={'artist'}
               rating={0}
-              onUpvote={() => { toast({
+              onUpvote={() => { 
+                voteToast({
                   title: 'Upvote: ' + song.name,
                   duration: 1000,
                   isClosable: true,
                 });
               }}
               onDownvote={() => {
-                toast({
+                voteToast({
                   title: 'Downvote: ' + song.name,
                   duration: 1000,
                   isClosable: true,
