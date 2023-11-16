@@ -7,7 +7,9 @@ import {
   Button,
   Input,
 } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 import React from 'react';
+import SongDisplay from './SongDisplay';
 import { useQueue } from '../../hooks/useQueue';
 
 export default function SpotifySidebar(): JSX.Element {
@@ -16,6 +18,13 @@ export default function SpotifySidebar(): JSX.Element {
   if (queue.length === 0) {
     return <></>;
   }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // fetch songs
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <VStack
@@ -26,36 +35,14 @@ export default function SpotifySidebar(): JSX.Element {
       marginLeft={2}
       borderColor='gray.500'
       height='100%'
-      divider={<StackDivider borderColor='gray.200' />}
+      divider={ <StackDivider borderColor='gray.200'/> }
       borderRadius='4px'>
-      <Heading fontSize='xl' as='h1'>
-        Spotify Controls
-      </Heading>
-      <div>
-        Current Song: {queue[0].name} <Button size='xs'>Vote Skip</Button>
-      </div>
-      <Heading fontSize='l' as='h2'>
-        Upcoming Songs
-      </Heading>
-      <OrderedList>
-        {queue.slice(1).map((song, id) => (
-          <ListItem key={id}>
-            <div>
-              {song.name}
-              <Button size='xs'>Upvote</Button>
-              <Button size='xs'>Downvote</Button>
-            </div>
-          </ListItem>
-        ))}
-      </OrderedList>
-      <Heading fontSize='l' as='h2'>
-        Spotify Controls
-      </Heading>
+      <SongDisplay />
+      <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
       <div>
         Search: <Input size='sm' />
       </div>
       <div> Search Results </div>
-      <div> </div>
     </VStack>
   );
 }
