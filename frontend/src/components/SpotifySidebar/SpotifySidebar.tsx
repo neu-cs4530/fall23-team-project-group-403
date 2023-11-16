@@ -8,6 +8,7 @@ import {
   Input,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import SongDisplay from './SongDisplay';
 import { useQueue } from '../../hooks/useQueue';
@@ -36,7 +37,10 @@ export default function SpotifySidebar(): JSX.Element {
       borderColor='gray.500'
       height='100%'
       divider={ <StackDivider borderColor='gray.200'/> }
+      divider={ <StackDivider borderColor='gray.200'/> }
       borderRadius='4px'>
+      <SongDisplay />
+      <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
       <SongDisplay />
       <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
       <div>
