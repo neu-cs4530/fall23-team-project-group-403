@@ -14,7 +14,7 @@ import { useQueue } from '../../hooks/useQueue';
 
 export default function SpotifySidebar(): JSX.Element {
   const { queue } = useQueue();
-  console.log(queue)
+  console.log(queue);
   if (queue.length === 0) {
     return <></>;
   }

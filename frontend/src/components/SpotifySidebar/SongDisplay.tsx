@@ -22,7 +22,12 @@ const SONGS = [
 ];
 
 export default function SongsDisplay(): JSX.Element {
-  const [songs, setSongs] = useState(SONGS);
+  const { queue } = useQueue();
+  console.log(queue);
+  if (queue.length === 0) {
+    return <></>;
+  }
+  const [songs, setSongs] = useState(queue);
   const toast = useToast();
   return (
     <div>
@@ -45,11 +50,13 @@ export default function SongsDisplay(): JSX.Element {
                   isClosable: true,
                 });
               }}
-              onDownvote={() => { toast({
+              onDownvote={() => {
+                toast({
                   title: 'Downvote: ' + song.name,
                   duration: 1000,
                   isClosable: true,
-              }) }} 
+                });
+              }}
             />
           </ListItem>
         ))}
