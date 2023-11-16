@@ -8,14 +8,15 @@ import {
   Input,
 } from '@chakra-ui/react';
 import React from 'react';
-
-const SONGS = [
-  { id: '1', name: 'song1' },
-  { id: '2', name: 'song2' },
-  { id: '3', name: 'song3' },
-];
+import { useQueue } from '../../hooks/useQueue';
 
 export default function SpotifySidebar(): JSX.Element {
+  const { queue } = useQueue();
+  console.log(queue)
+  if (queue.length === 0) {
+    return <></>;
+  }
+
   return (
     <VStack
       align='left'
@@ -31,14 +32,14 @@ export default function SpotifySidebar(): JSX.Element {
         Spotify Controls
       </Heading>
       <div>
-        Current Song: {SONGS[0].name} <Button size='xs'>Vote Skip</Button>
+        Current Song: {queue[0].name} <Button size='xs'>Vote Skip</Button>
       </div>
       <Heading fontSize='l' as='h2'>
         Upcoming Songs
       </Heading>
       <OrderedList>
-        {SONGS.slice(1).map(song => (
-          <ListItem key={song.id}>
+        {queue.slice(1).map((song, id) => (
+          <ListItem key={id}>
             <div>
               {song.name}
               <Button size='xs'>Upvote</Button>
