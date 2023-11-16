@@ -40,14 +40,15 @@ export default function SongsDisplay(): JSX.Element {
               artist={'artist'}
               rating={0}
               onUpvote={() => { toast({
-                title: 'Upvote: ' + song.name,
-                duration: 1000,
-                isClosable: true,
-              }) }}
+                  title: 'Upvote: ' + song.name,
+                  duration: 1000,
+                  isClosable: true,
+                });
+              }}
               onDownvote={() => { toast({
-                title: 'Downvote: ' + song.name,
-                duration: 1000,
-                isClosable: true,
+                  title: 'Downvote: ' + song.name,
+                  duration: 1000,
+                  isClosable: true,
               }) }} 
             />
           </ListItem>
