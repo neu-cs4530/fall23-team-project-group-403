@@ -10,7 +10,7 @@ import {
 export default function SpotifyLogin(): JSX.Element {
   const toast = useToast();
 
-  function handleLogin() {}
+  const loginURL = `${process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL}/auth/login`;
 
   return (
     <>
@@ -18,9 +18,10 @@ export default function SpotifyLogin(): JSX.Element {
         Spotify Capabilities
       </Heading>
       <Box>
-        <Button
-          onClick={handleLogin}>
-          Log in
+        <Button>
+          <a className='btn-spotify' href={loginURL}>
+            Login with Spotify
+          </a>
         </Button>
       </Box>
     </>
