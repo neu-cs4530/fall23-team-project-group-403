@@ -8,6 +8,7 @@ import {
   Input,
 } from '@chakra-ui/react';
 import React from 'react';
+import SpotifyWebplayer from './SpotifyWebplayer';
 
 const SONGS = [
   { id: '1', name: 'song1' },
@@ -55,6 +56,7 @@ export default function SpotifySidebar(): JSX.Element {
       </div>
       <div> Search Results </div>
       <div> </div>
+      <SpotifyWebplayer token={window.sessionStorage.getItem('SPOTIFY_AUTH_TOKEN')}/>
     </VStack>
   );
 }
