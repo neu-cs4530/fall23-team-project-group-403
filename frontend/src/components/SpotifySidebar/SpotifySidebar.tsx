@@ -8,6 +8,13 @@ import {
   Input,
 } from '@chakra-ui/react';
 import React from 'react';
+import SpotifyWebplayer from './SpotifyWebplayer';
+
+const SONGS = [
+  { id: '1', name: 'song1' },
+  { id: '2', name: 'song2' },
+  { id: '3', name: 'song3' },
+];
 import SongDisplay from './SongDisplay';
 
 export default function SpotifySidebar(): JSX.Element {
@@ -28,6 +35,8 @@ export default function SpotifySidebar(): JSX.Element {
         Search: <Input size='sm' />
       </div>
       <div> Search Results </div>
+      <div> </div>
+      <SpotifyWebplayer token={window.sessionStorage.getItem('SPOTIFY_AUTH_TOKEN')}/>
     </VStack>
   );
 }
