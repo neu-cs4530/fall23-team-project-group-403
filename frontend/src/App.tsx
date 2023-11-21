@@ -21,6 +21,7 @@ import { nanoid } from 'nanoid';
 import { FirebaseProvider } from './firebase';
 
 function App() {
+  const [token, setToken] = useState('');
   const [townController, setTownController] = useState<TownController | null>(null);
 
   const { error, setError } = useAppState();
@@ -45,15 +46,33 @@ function App() {
   const url = process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL;
   assert(url, 'NEXT_PUBLIC_TOWNS_SERVICE_URL must be defined');
   const townsService = new TownsServiceClient({ BASE: url }).towns;
+
+  // Use Effect to get the Spotify Auth Token
+  useEffect(() => {
+    // Function definition to get the token
+    async function getToken() {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL}/auth/token`);
+      const json = await response.json();
+      setToken(json.access_token);
+    }
+
+    // Call get Token
+    getToken();
+  }, []);
+
   return (
-    <LoginControllerContext.Provider value={{ setTownController, townsService }}>
-      <UnsupportedBrowserWarning>
-        <VideoProvider options={connectionOptions} onError={setError} onDisconnect={onDisconnect}>
-          <ErrorDialog dismissError={() => setError(null)} error={error} />
-          {page}
-        </VideoProvider>
-      </UnsupportedBrowserWarning>
-    </LoginControllerContext.Provider>
+    <>
+      {console.log('SPOTIFY AUTH TOKEN: ' + token)}
+      {window.sessionStorage.setItem('SPOTIFY_AUTH_TOKEN', token)}
+      <LoginControllerContext.Provider value={{ setTownController, townsService }}>
+        <UnsupportedBrowserWarning>
+          <VideoProvider options={connectionOptions} onError={setError} onDisconnect={onDisconnect}>
+            <ErrorDialog dismissError={() => setError(null)} error={error} />
+            {page}
+          </VideoProvider>
+        </UnsupportedBrowserWarning>
+      </LoginControllerContext.Provider>
+    </>
   );
 }
 

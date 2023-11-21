@@ -2,6 +2,7 @@ import { StackDivider, VStack } from '@chakra-ui/react';
 import React from 'react';
 import QueueDisplay from './Queue/QueueDisplay';
 import SettingsDisplay from './Controls/SettingsDisplay';
+import SpotifyWebplayer from './SpotifyWebplayer';
 
 export default function SpotifySidebar(): JSX.Element {
   return (
@@ -17,6 +18,7 @@ export default function SpotifySidebar(): JSX.Element {
       borderRadius='4px'>
       <QueueDisplay />
       <SettingsDisplay />
+      <SpotifyWebplayer token={window.sessionStorage.getItem('SPOTIFY_AUTH_TOKEN')} />
     </VStack>
   );
 }
