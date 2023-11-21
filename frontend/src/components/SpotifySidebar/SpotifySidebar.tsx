@@ -15,6 +15,7 @@ const SONGS = [
   { id: '2', name: 'song2' },
   { id: '3', name: 'song3' },
 ];
+import SongDisplay from './SongDisplay';
 
 export default function SpotifySidebar(): JSX.Element {
   return (
@@ -26,31 +27,10 @@ export default function SpotifySidebar(): JSX.Element {
       marginLeft={2}
       borderColor='gray.500'
       height='100%'
-      divider={<StackDivider borderColor='gray.200' />}
+      divider={ <StackDivider borderColor='gray.200'/> }
       borderRadius='4px'>
-      <Heading fontSize='xl' as='h1'>
-        Spotify Controls
-      </Heading>
-      <div>
-        Current Song: {SONGS[0].name} <Button size='xs'>Vote Skip</Button>
-      </div>
-      <Heading fontSize='l' as='h2'>
-        Upcoming Songs
-      </Heading>
-      <OrderedList>
-        {SONGS.slice(1).map(song => (
-          <ListItem key={song.id}>
-            <div>
-              {song.name}
-              <Button size='xs'>Upvote</Button>
-              <Button size='xs'>Downvote</Button>
-            </div>
-          </ListItem>
-        ))}
-      </OrderedList>
-      <Heading fontSize='l' as='h2'>
-        Spotify Controls
-      </Heading>
+      <SongDisplay />
+      <Heading fontSize='l' as='h3'> Spotify Controls </Heading>
       <div>
         Search: <Input size='sm' />
       </div>
