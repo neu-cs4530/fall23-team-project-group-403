@@ -16,7 +16,7 @@ declare global {
  * Helper methods that interact with spotify API
  */
 export function useSpotify() {
-  const { queue } = useQueue();
+  const { sortedQueue } = useQueue();
 
   // Use state for the Spotify player
   const [player, setPlayer] = useState(undefined);
@@ -76,10 +76,10 @@ export function useSpotify() {
         // Device is now ready, ID = SPOTIFY_DEVICE_ID
         sessionStorage.setItem('SPOTIFY_DEVICE_ID', device_id);
 
-        if (queue.length !== 0) {
+        if (sortedQueue.length !== 0) {
           // Play a specified song on the new device
           playSpotifySongOnDevice(
-            [queue[0].uri],
+            [sortedQueue[0].uri],
             device_id,
           );
         }
@@ -91,7 +91,7 @@ export function useSpotify() {
 
       player.connect();
     };
-  }, [queue]);
+  }, [sortedQueue[0]?.name]);
 
   const searchForTrack = async (trackName: string) => {
     // Send request to spotify API /search, limit by track and first 10 elements

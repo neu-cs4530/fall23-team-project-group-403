@@ -1,4 +1,4 @@
-import { StackDivider, VStack } from '@chakra-ui/react';
+import { Heading, StackDivider, VStack } from '@chakra-ui/react';
 import React from 'react';
 import QueueDisplay from './Queue/QueueDisplay';
 import SettingsDisplay from './Controls/SettingsDisplay';
@@ -15,6 +15,9 @@ export default function SpotifySidebar(): JSX.Element {
       height='100%'
       divider={<StackDivider borderColor='gray.200' />}
       borderRadius='4px'>
+      <Heading fontSize='xl' as='h1' > 
+        Spotify Jukebox
+      </Heading>
       <QueueDisplay />
       <SettingsDisplay />
     </VStack>
