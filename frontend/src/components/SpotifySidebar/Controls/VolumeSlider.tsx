@@ -1,4 +1,4 @@
-import { Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box, Text } from '@chakra-ui/react';
+import { Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box, Heading } from '@chakra-ui/react';
 
 interface VolumeSliderProps {
   value: number;
@@ -8,7 +8,7 @@ interface VolumeSliderProps {
 const VolumeSlider: React.FC<VolumeSliderProps> = ({ value, onChange }) => {
   return (
     <Box>
-      <Text>Volume</Text>
+      <Heading fontSize='l' as='h3' marginBottom={1}>Volume</Heading>
       <Slider aria-label='Volume Slider' defaultValue={value} onChangeEnd={onChange} min={0} max={100}>
         <SliderTrack>
           <SliderFilledTrack bgColor={'green.500'} />

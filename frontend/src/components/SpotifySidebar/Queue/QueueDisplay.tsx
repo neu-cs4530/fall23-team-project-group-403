@@ -30,18 +30,15 @@ export default function QueueDisplay(): JSX.Element {
 
   return (
     <Box>
-      <Box marginY={2}>
-        <Heading fontSize='l' as='h2'>
+        <Heading fontSize='xl' as='h3'>
           Current Song
         </Heading>
         <Text>
           {queue[0].name} <Button size='xs'>Vote Skip</Button>
         </Text>
         <Image src={queue[0].albumCover} width={20} />
-      </Box>
 
-      <Box marginY={2}>
-        <Heading fontSize='l' as='h2'>
+        <Heading fontSize='xl' as='h3'>
           Upcoming Songs
         </Heading>
         <OrderedList>
@@ -69,7 +66,6 @@ export default function QueueDisplay(): JSX.Element {
             </ListItem>
           ))}
         </OrderedList>
-      </Box>
     </Box>
   );
 }

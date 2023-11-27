@@ -47,32 +47,7 @@ export function useQueue() {
         newTownName: newTownName || '',
         creationDate: new Date(),
         // Hardcode the list of songs for this iteration
-        queue: [
-          {
-            id: '3WMj8moIAXJhHsyLaqIIHI',
-            uri: 'spotify:track:3WMj8moIAXJhHsyLaqIIHI',
-            name: 'Something in the Orange',
-            artist: 'Zach Bryan',
-            voteCount: 0,
-            albumCover: 'https://i.scdn.co/image/ab67616d0000b273f9017bcd001d030d46850226',
-          },
-          {
-            id: '3SUusuA9jH1v6PVwtYMbdv',
-            uri: 'spotify:track:3SUusuA9jH1v6PVwtYMbdv',
-            name: 'Last Nite',
-            artist: 'The Strokes',
-            voteCount: 0,
-            albumCover: 'https://i.scdn.co/image/ab67616d0000b27313f2466b83507515291acce4',
-          },
-          {
-            id: '2Dct3GykKZ58hpWRFfe2Qd',
-            uri: 'spotify:track:2Dct3GykKZ58hpWRFfe2Qd',
-            name: 'Heading South',
-            artist: 'Zach Bryan',
-            voteCount: 0,
-            albumCover: 'https://i.scdn.co/image/ab67616d0000b273f9017bcd001d030d46850226',
-          },
-        ],
+        queue: [],
       };
       const docRef = await addDoc(queueCollection, newQueue);
 
@@ -103,6 +78,29 @@ export function useQueue() {
     fetchQueue();
   }, [db, townController?.townID]);
 
+  const addToQueue = async (s: Song) => {
+    const queueCollection = collection(db, 'Queue');
+    const q = query(queueCollection, where('townID', '==', townController?.townID));
+    const querySnapshot = await getDocs(q);
+    // Check if the song already exists in the database
+    if (querySnapshot.empty) {
+      await addDoc(queueCollection, { id: s.id, name: s.name, artist: s.artist, voteCount: s.voteCount });
+   }
+   querySnapshot.forEach(async currentDoc => {
+      const docRef = doc(queueCollection, currentDoc.id);
+      const currentQueue = currentDoc.data().queue;
+      // Check if song is in queue
+      const songIndex = currentQueue.findIndex((song: Song) => song.id === s.id);
+      if (songIndex === -1) { 
+        // Song is not in queue
+        // Add the song to the queue
+        currentQueue.push(s);
+      }
+      // Update the queue in the document
+      await updateDoc(docRef, { queue: currentQueue });
+    });
+  }
+
   const vote = async (songID: string, number: 1 | -1) => {
     const queueCollection = collection(db, 'Queue');
     const q = query(queueCollection, where('townID', '==', townController?.townID));
@@ -132,5 +130,5 @@ export function useQueue() {
     });
   };
 
-  return { createNewQueue, queue, vote };
+  return { createNewQueue, queue, vote, addToQueue };
 }
