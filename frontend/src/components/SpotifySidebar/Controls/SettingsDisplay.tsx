@@ -72,7 +72,7 @@ const SettingsDisplay = () => {
         borderRadius='4px'>
         <Box>
           <Heading fontSize='l' as='h3' marginBottom={2}>
-            SEARCH SONG BY NAME <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm'/>
+            SEARCH SONG BY NAME <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm' backgroundColor={'gray.100'}/>
           </Heading>
           <Heading fontSize='l' as='h3' marginBottom={1}>
             Search Results    (Name, Artist)
