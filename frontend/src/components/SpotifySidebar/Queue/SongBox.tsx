@@ -16,7 +16,7 @@ export default function SongDisplay({ song, onUpvote, onDownvote }: SongProps): 
       {song.name} - {song.artist}
       <Box>
         <Button
-          disabled={hasVoted}
+          //disabled={hasVoted}
           size='xs'
           onClick={() => {
             setHasVoted(true);
@@ -25,7 +25,7 @@ export default function SongDisplay({ song, onUpvote, onDownvote }: SongProps): 
           Upvote
         </Button>
         <Button
-          disabled={hasVoted}
+          //disabled={hasVoted}
           size='xs'
           onClick={() => {
             setHasVoted(true);

@@ -7,7 +7,7 @@ import VolumeSlider from './VolumeSlider';
 import { useQueue } from '../../../hooks/useQueue';
 
 const SettingsDisplay = () => {
-  const { queue, vote, addToQueue } = useQueue();
+  const { sortedQueue, vote, addToQueue } = useQueue();
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
   const coveyTownController = useTownController();
   const [songResults, setSongResults] = useState<Song[] | null>(null);

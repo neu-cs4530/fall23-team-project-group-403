@@ -18,15 +18,12 @@ import {
  * in the queue. Allows users to skip the current song and vote for upcoming songs
  */
 export default function QueueDisplay(): JSX.Element {
-  const { queue, vote } = useQueue();
+  const { sortedQueue, vote } = useQueue();
   const voteToast = useToast();
 
-  if (queue.length === 0) {
+  if (sortedQueue.length === 0) {
     return <></>;
   }
-
-  // Sort the upcoming songs queue by vote count
-  const sortedQueue = queue.sort((a, b) => b.voteCount - a.voteCount);
 
   return (
     <Box>
@@ -34,9 +31,9 @@ export default function QueueDisplay(): JSX.Element {
           Current Song
         </Heading>
         <Text>
-          {queue[0].name} <Button size='xs'>Vote Skip</Button>
+          {sortedQueue[0].name} <Button size='xs'>Vote Skip</Button>
         </Text>
-        <Image src={queue[0].albumCover} width={20} />
+        <Image src={sortedQueue[0].albumCover} width={20} />
 
         <Heading fontSize='xl' as='h3'>
           Upcoming Songs
