@@ -11,7 +11,7 @@ const SettingsDisplay = () => {
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
   const coveyTownController = useTownController();
   const [songResults, setSongResults] = useState<Song[] | null>(null);
-
+  const top5Results = songResults?.slice(0,5);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Create a debounce function so we only send a new search API call after a time interval
@@ -78,7 +78,7 @@ const SettingsDisplay = () => {
             Search Results    (Name, Artist)
           </Heading>
           <OrderedList>
-            {songResults?.map(song => (
+            {top5Results?.map(song => (
               <ListItem key={song.id}>
                 { song.name } - { song.artist }
                 <Button size={'xs'} onClick={() => addToQueue(song)}>Add</Button>
