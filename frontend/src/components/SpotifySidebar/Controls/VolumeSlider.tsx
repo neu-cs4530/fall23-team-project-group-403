@@ -9,7 +9,7 @@ const VolumeSlider: React.FC<VolumeSliderProps> = ({ value, onChange }) => {
   return (
     <Box>
       <Text>Volume</Text>
-      <Slider aria-label='Volume Slider' defaultValue={value} onChange={onChange} min={0} max={100}>
+      <Slider aria-label='Volume Slider' defaultValue={value} onChangeEnd={onChange} min={0} max={100}>
         <SliderTrack>
           <SliderFilledTrack bgColor={'green.500'} />
         </SliderTrack>
