@@ -15,11 +15,13 @@ import { Song } from '../../../hooks/useQueue';
 import { useSpotify } from '../../../hooks/useSpotify';
 import useTownController from '../../../hooks/useTownController';
 import VolumeSlider from './VolumeSlider';
+import { useSongStatus } from '../../../hooks/useSongStatus';
 import { useQueue } from '../../../hooks/useQueue';
 
 const SettingsDisplay = () => {
   const { addToQueue } = useQueue();
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
+  useSongStatus();
   const coveyTownController = useTownController();
   const toast = useToast();
 
