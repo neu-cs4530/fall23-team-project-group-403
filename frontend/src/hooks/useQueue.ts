@@ -22,7 +22,7 @@ export type Song = {
   albumCover: string; // URL for the Album Cover
 };
 
-type QueueDoc = {
+export type QueueDoc = {
   name: string;
   townID: string;
   newTownName: string;
