@@ -48,8 +48,8 @@ export function useQueue() {
     startTime: Date.now(),
   }
   const [queue, setQueue] = useState<Song[]>([]);
-  // Sort the upcoming songs queue by vote count
-  const sortedQueue = queue.sort((a, b) => b.voteCount - a.voteCount);
+  // Sort the upcoming songs queue by vote count (exclude the first song, which is the currently playing song)
+  const sortedQueue = queue.length > 0 ? [queue[0], ...queue.slice(1).sort((a, b) => b.voteCount - a.voteCount)] : [];
 
   const createNewQueue = async (townID: string, newTownName: string) => {
     try {
@@ -275,10 +275,13 @@ export function useQueue() {
 
     querySnapshot.forEach(async currentDoc => {
       const docRef = doc(queueCollection, currentDoc.id);
-      const currentQueue = currentDoc.data().queue;
+      const currentQueue: Song[] = currentDoc.data().queue;
+
+      // When we get the queue, it's unsorted, so we have to sort it
+      const localSortedQueue = [currentQueue[0], ...currentQueue.slice(1).sort((a, b) => b.voteCount - a.voteCount)]
 
       // Get the currently playing song
-      let currentlyPlayingSong = currentQueue[0]
+      let currentlyPlayingSong = localSortedQueue[0]
 
       if (currentlyPlayingSong.uri !== currentURI) {
         // This means that the song was skipped by someone else already, so shouldChangeSong should be false
@@ -288,7 +291,7 @@ export function useQueue() {
       // If we want to change the song
       if (shouldChangeSong) {
         // Remove the first song from the queue
-        const newQueue = currentQueue.slice(1);
+        const newQueue = localSortedQueue.slice(1);
 
         // If the new queue is empty, then add the default song to the queue
         if (newQueue.length === 0) {

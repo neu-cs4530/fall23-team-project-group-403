@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQueue } from './useQueue';
 
 export function useSongStatus() {
-    const { queue, updateCurrentlyPlayingSong } = useQueue();
+    const { sortedQueue, updateCurrentlyPlayingSong } = useQueue();
     const [hasBeenCalled, setHasBeenCalled] = useState(false);
     const checkIfSongIsOverInterval = 1000; // 1 second
 
@@ -26,19 +26,19 @@ export function useSongStatus() {
             else {
                 // Every other time this function is called (check for song being over)
 
-                if (queue.length === 0) {
+                if (sortedQueue.length === 0) {
                     console.log("Issue: Queue is empty")
                 }
 
                 // A buffer if we want to update the song early (ie 5 seconds before the song is over)
                 const buffer = 0 // -5000; // 5 second buffer
-                const endTime = queue[0].startTime + queue[0].duration + buffer;
+                const endTime = sortedQueue[0].startTime + sortedQueue[0].duration + buffer;
 
                 // If now is past the end time, the song is over
                 if (Date.now() >= endTime) {
                     console.log("Song is over, calling updateCurrentlyPlayingSong")
                     // Call with the currently playing URI to prevent duplicate skips
-                    updateCurrentlyPlayingSong(true, queue[0].uri);
+                    updateCurrentlyPlayingSong(true, sortedQueue[0].uri);
                 }
             }
         }, checkIfSongIsOverInterval);
@@ -46,6 +46,6 @@ export function useSongStatus() {
         return () => {
             clearInterval(intervalID);
         }
-    }, [queue, hasBeenCalled])
+    }, [sortedQueue, hasBeenCalled])
 }
     
