@@ -1,20 +1,20 @@
-import { Box, Text, Heading, Input, VStack, StackDivider } from '@chakra-ui/react';
+import { Box, Text, Heading, Input, VStack, StackDivider, OrderedList, ListItem, Button } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { Song } from '../../../hooks/useQueue';
 import { useSpotify } from '../../../hooks/useSpotify';
 import useTownController from '../../../hooks/useTownController';
 import VolumeSlider from './VolumeSlider';
 import { useSongStatus } from '../../../hooks/useSongStatus';
+import { useQueue } from '../../../hooks/useQueue';
 
 const SettingsDisplay = () => {
+  const { sortedQueue, vote, addToQueue } = useQueue();
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
   const _ = useSongStatus();
   const coveyTownController = useTownController();
   const [songResults, setSongResults] = useState<Song[] | null>(null);
-
+  const top5Results = songResults?.slice(0,5);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  console.log(songResults);
 
   // Create a debounce function so we only send a new search API call after a time interval
   // This prevents us from sending a new API call for every key stroke
@@ -38,6 +38,9 @@ const SettingsDisplay = () => {
     debouncedSearch();
   };
 
+
+
+
   useEffect(() => {
     // Pause the town when the input is focused, we don't want to move while searching
     const handleFocusChange = () => {
@@ -59,8 +62,8 @@ const SettingsDisplay = () => {
 
   return (
     <Box>
-      <Heading fontSize='l' as='h3' marginBottom={2}>
-        Spotify Controls
+      <Heading fontSize='xl' as='h2' >
+        Controls
       </Heading>
 
       <VStack
@@ -70,10 +73,20 @@ const SettingsDisplay = () => {
         divider={<StackDivider borderColor='gray.200' />}
         borderRadius='4px'>
         <Box>
-          <Text>
-            Search <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm' />
-          </Text>
-          <Text> Search Results </Text>
+          <Heading fontSize='l' as='h3' marginBottom={2}>
+            SEARCH SONG BY NAME <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm' backgroundColor={'gray.100'}/>
+          </Heading>
+          <Heading fontSize='l' as='h3' marginBottom={1}>
+            Search Results    (Name, Artist)
+          </Heading>
+          <OrderedList>
+            {top5Results?.map(song => (
+              <ListItem key={song.id}>
+                { song.name } - { song.artist }
+                <Button size={'xs'} onClick={() => addToQueue(song)}>Add</Button>
+              </ListItem>
+            ))}
+          </OrderedList>
         </Box>
         <VolumeSlider value={50} onChange={(sliderValue: number) => changeSpotifyVolume(sliderValue)} />
       </VStack>

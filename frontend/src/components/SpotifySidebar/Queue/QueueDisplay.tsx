@@ -18,35 +18,29 @@ import {
  * in the queue. Allows users to skip the current song and vote for upcoming songs
  */
 export default function QueueDisplay(): JSX.Element {
-  const { queue, vote, updateCurrentlyPlayingSong } = useQueue();
+  const { sortedQueue, vote, updateCurrentlyPlayingSong } = useQueue();
   const voteToast = useToast();
 
-  if (queue.length === 0) {
+  if (sortedQueue.length === 0) {
     return <></>;
   }
 
-  // Sort the upcoming songs queue by vote count
-  const sortedQueue = queue.sort((a, b) => b.voteCount - a.voteCount);
-
   const handleVoteSkipClick = () => {
     console.log('Vote skip clicked, skipping song');
-    updateCurrentlyPlayingSong(true, queue[0].uri);
+    updateCurrentlyPlayingSong(true, sortedQueue[0].uri);
   }
 
   return (
     <Box>
-      <Box marginY={2}>
-        <Heading fontSize='l' as='h2'>
+        <Heading fontSize='xl' as='h3'>
           Current Song
         </Heading>
         <Text>
-          {queue[0].name} <Button size='xs' onClick={handleVoteSkipClick}>Vote Skip</Button>
+          {sortedQueue[0].name} <Button size='xs' onClick={handleVoteSkipClick}>Vote Skip</Button>
         </Text>
-        <Image src={queue[0].albumCover} width={20} />
-      </Box>
+        <Image src={sortedQueue[0].albumCover} width={20} />
 
-      <Box marginY={2}>
-        <Heading fontSize='l' as='h2'>
+        <Heading fontSize='xl' as='h3'>
           Upcoming Songs
         </Heading>
         <OrderedList>
@@ -74,7 +68,6 @@ export default function QueueDisplay(): JSX.Element {
             </ListItem>
           ))}
         </OrderedList>
-      </Box>
     </Box>
   );
 }

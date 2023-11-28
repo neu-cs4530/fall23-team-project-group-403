@@ -16,7 +16,7 @@ declare global {
  * Helper methods that interact with spotify API
  */
 export function useSpotify() {
-  const { queue } = useQueue();
+  const { sortedQueue } = useQueue();
 
   // Use state for the Spotify player
   const [player, setPlayer] = useState(undefined);

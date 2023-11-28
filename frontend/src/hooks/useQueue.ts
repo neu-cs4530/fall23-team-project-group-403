@@ -37,7 +37,6 @@ export function useQueue() {
   const db = getFirestore();
   const townController = useContext(context);
 
-  const [queue, setQueue] = useState<Song[]>([]); 
   const defaultSong = {
     id: '4PTG3Z6ehGkBFwjybzWkR8',
     uri: 'spotify:track:4PTG3Z6ehGkBFwjybzWkR8',
@@ -48,6 +47,9 @@ export function useQueue() {
     duration: 213573,
     startTime: Date.now(),
   }
+  const [queue, setQueue] = useState<Song[]>([]);
+  // Sort the upcoming songs queue by vote count
+  const sortedQueue = queue.sort((a, b) => b.voteCount - a.voteCount);
 
   const createNewQueue = async (townID: string, newTownName: string) => {
     try {
@@ -181,6 +183,29 @@ export function useQueue() {
     fetchQueue();
   }, [db, townController?.townID]);
 
+  const addToQueue = async (s: Song) => {
+    const queueCollection = collection(db, 'Queue');
+    const q = query(queueCollection, where('townID', '==', townController?.townID));
+    const querySnapshot = await getDocs(q);
+    // Check if the song already exists in the database
+    if (querySnapshot.empty) {
+      await addDoc(queueCollection, { id: s.id, name: s.name, artist: s.artist, voteCount: s.voteCount });
+    }
+    querySnapshot.forEach(async currentDoc => {
+        const docRef = doc(queueCollection, currentDoc.id);
+        const currentQueue = currentDoc.data().queue;
+        // Check if song is in queue
+        const songIndex = currentQueue.findIndex((song: Song) => song.id === s.id);
+        if (songIndex === -1) { 
+          // Song is not in queue
+          // Add the song to the queue
+          currentQueue.push(s);
+        }
+        // Update the queue in the document
+        await updateDoc(docRef, { queue: currentQueue });
+      });
+  }
+
   const vote = async (songID: string, number: 1 | -1) => {
     const queueCollection = collection(db, 'Queue');
     const q = query(queueCollection, where('townID', '==', townController?.townID));
@@ -209,6 +234,7 @@ export function useQueue() {
       }
     });
   };
+  
 
   // Local helper to play a specific song (without a target device)
   const localPlaySongWithoutDevice = async (songURIs: string[], position: number) => {
@@ -290,5 +316,5 @@ export function useQueue() {
     });
   }
 
-  return { createNewQueue, queue, vote, updateCurrentlyPlayingSong };
+  return { createNewQueue, sortedQueue, vote, addToQueue, updateCurrentlyPlayingSong };
 }
