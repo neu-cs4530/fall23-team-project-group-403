@@ -18,7 +18,7 @@ import {
  * in the queue. Allows users to skip the current song and vote for upcoming songs
  */
 export default function QueueDisplay(): JSX.Element {
-  const { sortedQueue, vote, updateCurrentlyPlayingSong } = useQueue();
+  const { sortedQueue, vote, skipSong } = useQueue();
   const voteToast = useToast();
 
   if (sortedQueue.length === 0) {
@@ -27,7 +27,8 @@ export default function QueueDisplay(): JSX.Element {
 
   const handleVoteSkipClick = () => {
     console.log('Vote skip clicked, skipping song');
-    updateCurrentlyPlayingSong(true, sortedQueue[0].uri);
+    // Call skip song
+    skipSong();
   }
 
   return (

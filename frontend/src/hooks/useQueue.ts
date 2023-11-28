@@ -277,8 +277,15 @@ export function useQueue() {
   };
 
   // Local helper to play a specific song (without a target device)
-  const localPlaySongWithoutDevice = async (songURIs: string[], position: number) => {
-    const url = 'https://api.spotify.com/v1/me/player/play';
+  const localPlaySongOnSpotify = async (songURIs: string[], position: number, deviceID: string = '') => {
+
+    let url = ''
+    if (deviceID === '') {
+      url = 'https://api.spotify.com/v1/me/player/play';
+    } else {
+      url = 'https://api.spotify.com/v1/me/player/play' + '?device_id=' + deviceID;
+    }
+
     const body = {
       uris: songURIs,
       position_ms: position,
@@ -350,14 +357,35 @@ export function useQueue() {
       }
       // Play the currently playing song
       const songStartPosition = currentlyPlayingSong.startTime !== 0 ? Date.now() - currentlyPlayingSong.startTime : 0
-      console.log("Calling localPlaySongWithoutDevice: " + currentlyPlayingSong.name + ", " + currentlyPlayingSong.uri + " - at time: " + songStartPosition)
+      console.log("Calling localPlaySongOnSpotify: on device: " + sessionStorage.getItem('SPOTIFY_DEVICE_ID') + "; Playing" + currentlyPlayingSong.name + ", " + currentlyPlayingSong.uri + " - at time: " + songStartPosition)
       // Call the local helper to play the song
-      localPlaySongWithoutDevice(
+      localPlaySongOnSpotify(
         [currentlyPlayingSong.uri],
         currentlyPlayingSong.startTime !== 0 ? Date.now() - currentlyPlayingSong.startTime : 0,
+        sessionStorage.getItem('SPOTIFY_DEVICE_ID') || '',
       );
     });
   }
 
-  return { createNewQueue, sortedQueue, vote, addToQueue, updateCurrentlyPlayingSong };
+  const skipSong = async () => {
+    // Instead of skipping directly, make the song over in the db (time wise) by setting the start time to zero
+    // (so the isSongOver hook catches it for everyone)
+    // Get this town ID's queue
+    const queueCollection = collection(db, 'Queue');
+    const q = query(queueCollection, where('townID', '==', townController?.townID));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach(async currentDoc => {
+      const docRef = doc(queueCollection, currentDoc.id);
+      const currentQueue: Song[] = currentDoc.data().queue;
+
+      // Set the start time to 0
+      currentQueue[0].startTime = 0;
+
+      // Update the queue in the document
+      await updateDoc(docRef, { queue: currentQueue});
+    });
+  }
+
+  return { createNewQueue, sortedQueue, vote, addToQueue, updateCurrentlyPlayingSong, skipSong };
 }
