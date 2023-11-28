@@ -4,9 +4,11 @@ import { Song } from '../../../hooks/useQueue';
 import { useSpotify } from '../../../hooks/useSpotify';
 import useTownController from '../../../hooks/useTownController';
 import VolumeSlider from './VolumeSlider';
+import { useSongStatus } from '../../../hooks/useSongStatus';
 
 const SettingsDisplay = () => {
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
+  const _ = useSongStatus();
   const coveyTownController = useTownController();
   const [songResults, setSongResults] = useState<Song[] | null>(null);
 

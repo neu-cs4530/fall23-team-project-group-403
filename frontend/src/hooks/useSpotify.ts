@@ -22,33 +22,32 @@ export function useSpotify() {
   const [player, setPlayer] = useState(undefined);
   const [spotifyToken, setSpotifyToken] = useState(sessionStorage.getItem('SPOTIFY_AUTH_TOKEN'));
 
-  // Function to prompt playback of a specific song on a specific device
-  const playSpotifySongOnDevice = async (songURIs: string[], deviceID: string) => {
-    // Can later add offset or position
-    const url = 'https://api.spotify.com/v1/me/player/play' + '?device_id=' + deviceID;
+  // Function to transfer playback to a new device
+  const transferSpotifyPlayback = async (deviceID: string, resumePlay: boolean) => {
+    const url = 'https://api.spotify.com/v1/me/player';
     const body = {
-      uris: songURIs,
+      device_ids: [deviceID],
+      play: resumePlay
     };
 
     try {
       const response = await fetch(url, {
         method: 'PUT',
         headers: {
-          Authorization: 'Bearer ' + spotifyToken || '',
+          'Authorization': 'Bearer ' + spotifyToken || '',
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
 
       if (!response.ok) {
         throw new Error('Error: ' + response.status);
       }
 
-      console.log('Playback device: ' + deviceID);
-      console.log('Started playing successfully: ' + songURIs);
+      console.log('Playback transfer successful');
     } catch (error) {
-      console.error('Error starting playback: ', error);
+      console.error('Error transferring playback: ', error);
     }
-  };
+  }
 
   useEffect(() => {
     // Load the Spotify Web Playback SDK script
@@ -76,13 +75,8 @@ export function useSpotify() {
         // Device is now ready, ID = SPOTIFY_DEVICE_ID
         sessionStorage.setItem('SPOTIFY_DEVICE_ID', device_id);
 
-        if (queue.length !== 0) {
-          // Play a specified song on the new device
-          playSpotifySongOnDevice(
-            [queue[0].uri],
-            device_id,
-          );
-        }
+        // Transfer playback to the new device
+        transferSpotifyPlayback(device_id, true);
       });
 
       player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
@@ -91,7 +85,7 @@ export function useSpotify() {
 
       player.connect();
     };
-  }, [queue]);
+  }, []); // We just want playback transferred once (at the beginning, not every time the queue updates)
 
   const searchForTrack = async (trackName: string) => {
     // Send request to spotify API /search, limit by track and first 10 elements
@@ -116,6 +110,8 @@ export function useSpotify() {
             artist: track.artists[0].name,
             voteCount: 0,
             albumCover: track.album.images[0].url,
+            duration: track.duration_ms,
+            startTime: 0,
           };
 
           searchResults.push(song);
@@ -145,5 +141,5 @@ export function useSpotify() {
     }
   };
 
-  return { player, searchForTrack, playSpotifySongOnDevice, changeSpotifyVolume };
+  return { player, searchForTrack, changeSpotifyVolume, transferSpotifyPlayback: transferSpotifyPlayback };
 }
