@@ -19,6 +19,8 @@ describe('useQueue', () => {
     artist: 'Zach Bryan',
     voteCount: 0,
     albumCover: 'https://i.scdn.co/image/ab67616d0000b273f9017bcd001d030d46850226',
+    duration: 200000,
+    startTime: 0,
   };
 
   const song2: Song = {
@@ -28,6 +30,8 @@ describe('useQueue', () => {
     artist: 'Jared R',
     voteCount: 0,
     albumCover: 'https://i.scdn.co/image/ab67616d0000b273f9017bcd001d030d46850226',
+    duration: 200000,
+    startTime: 0,
   };
 
   beforeEach(() => {
@@ -186,6 +190,8 @@ describe('useQueue', () => {
               artist: 'Zach Bryan',
               voteCount: expectedVoteCount, // Vote count should be updated based on the parameter
               albumCover: 'https://i.scdn.co/image/ab67616d0000b273f9017bcd001d030d46850226',
+              duration: 200000,
+              startTime: 0,
             },
           ],
         }),
