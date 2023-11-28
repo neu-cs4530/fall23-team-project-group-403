@@ -21,7 +21,7 @@ import { useQueue } from '../../../hooks/useQueue';
 const SettingsDisplay = () => {
   const { addToQueue } = useQueue();
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
-  const _ = useSongStatus();
+  useSongStatus();
   const coveyTownController = useTownController();
   const toast = useToast();
 
