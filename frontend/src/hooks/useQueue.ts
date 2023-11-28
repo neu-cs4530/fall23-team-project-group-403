@@ -358,6 +358,8 @@ export function useQueue() {
       // Play the currently playing song
       const songStartPosition = currentlyPlayingSong.startTime !== 0 ? Date.now() - currentlyPlayingSong.startTime : 0
       console.log("Calling localPlaySongOnSpotify: on device: " + sessionStorage.getItem('SPOTIFY_DEVICE_ID') + "; Playing" + currentlyPlayingSong.name + ", " + currentlyPlayingSong.uri + " - at time: " + songStartPosition)
+      // Update the currently playing song var
+      sessionStorage.setItem('SPOTIFY_CURRENTLY_PLAYING_URI', currentlyPlayingSong.uri);
       // Call the local helper to play the song
       localPlaySongOnSpotify(
         [currentlyPlayingSong.uri],
