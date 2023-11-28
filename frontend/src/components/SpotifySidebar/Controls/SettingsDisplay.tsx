@@ -7,7 +7,6 @@ import {
   OrderedList,
   ListItem,
   Button,
-  toast,
   useToast,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
@@ -115,16 +114,18 @@ const SettingsDisplay = () => {
           <Heading fontSize='l' as='h3' marginBottom={1}>
             Search Results (Name, Artist)
           </Heading>
-          <OrderedList>
-            {top5Results?.map(song => (
-              <ListItem key={song.id}>
-                {song.name} - {song.artist}
-                <Button size={'xs'} onClick={() => handleAddToQueue(song)}>
-                  Add
-                </Button>
-              </ListItem>
-            ))}
-          </OrderedList>
+          <Box maxHeight={200} overflowY='auto'>
+            <OrderedList>
+              {top5Results?.map(song => (
+                <ListItem key={song.id}>
+                  {song.name} - {song.artist}
+                  <Button size={'xs'} onClick={() => handleAddToQueue(song)}>
+                    Add
+                  </Button>
+                </ListItem>
+              ))}
+            </OrderedList>
+          </Box>
         </Box>
         <VolumeSlider
           value={50}
