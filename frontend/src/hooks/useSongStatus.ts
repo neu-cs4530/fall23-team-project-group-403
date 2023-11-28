@@ -40,6 +40,13 @@ export function useSongStatus() {
                     // Call with the currently playing URI to prevent duplicate skips
                     updateCurrentlyPlayingSong(true, sortedQueue[0].uri);
                 }
+
+                // If the songs don't match, that means someone else skipped / ended the song
+                // So we want to update the currently playing song (with false so it doesn't skip) so that it plays the correct song
+                if (sortedQueue[0].uri !== sessionStorage.getItem('SPOTIFY_CURRENTLY_PLAYING_URI')) {
+                    console.log("Songs don't match, calling updateCurrentlyPlayingSong")
+                    updateCurrentlyPlayingSong(false, '');
+                }
             }
         }, checkIfSongIsOverInterval);
 
