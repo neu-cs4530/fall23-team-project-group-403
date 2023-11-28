@@ -1,4 +1,15 @@
-import { Box, Text, Heading, Input, VStack, StackDivider, OrderedList, ListItem, Button } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Input,
+  VStack,
+  StackDivider,
+  OrderedList,
+  ListItem,
+  Button,
+  toast,
+  useToast,
+} from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { Song } from '../../../hooks/useQueue';
 import { useSpotify } from '../../../hooks/useSpotify';
@@ -8,12 +19,14 @@ import { useSongStatus } from '../../../hooks/useSongStatus';
 import { useQueue } from '../../../hooks/useQueue';
 
 const SettingsDisplay = () => {
-  const { sortedQueue, vote, addToQueue } = useQueue();
+  const { addToQueue } = useQueue();
   const { searchForTrack, changeSpotifyVolume } = useSpotify();
   const _ = useSongStatus();
   const coveyTownController = useTownController();
+  const toast = useToast();
+
   const [songResults, setSongResults] = useState<Song[] | null>(null);
-  const top5Results = songResults?.slice(0,5);
+  const top5Results = songResults?.slice(0, 5);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Create a debounce function so we only send a new search API call after a time interval
@@ -38,9 +51,6 @@ const SettingsDisplay = () => {
     debouncedSearch();
   };
 
-
-
-
   useEffect(() => {
     // Pause the town when the input is focused, we don't want to move while searching
     const handleFocusChange = () => {
@@ -60,9 +70,34 @@ const SettingsDisplay = () => {
     };
   }, [inputRef, coveyTownController]);
 
+  // Add a song to the queue, display a toast message depending on the result
+  const handleAddToQueue = (song: Song) => {
+    addToQueue(song)
+      .then(() => {
+        // Display a message to the user that the song was added to the queue
+        toast({
+          title: 'Song Added',
+          description: `${song.name} by ${song.artist} was added to the queue.`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      })
+      .catch(err => {
+        // Display a message to the user that the song was not added to the queue
+        toast({
+          title: err.message,
+          description: `Error adding ${song.name} by ${song.artist} to the queue.`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      });
+  };
+
   return (
     <Box>
-      <Heading fontSize='xl' as='h2' >
+      <Heading fontSize='xl' as='h2'>
         Controls
       </Heading>
 
@@ -74,21 +109,27 @@ const SettingsDisplay = () => {
         borderRadius='4px'>
         <Box>
           <Heading fontSize='l' as='h3' marginBottom={2}>
-            SEARCH SONG BY NAME <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm' backgroundColor={'gray.100'}/>
+            SEARCH SONG BY NAME{' '}
+            <Input ref={inputRef} onKeyUp={handleKeyInput} size='sm' backgroundColor={'gray.100'} />
           </Heading>
           <Heading fontSize='l' as='h3' marginBottom={1}>
-            Search Results    (Name, Artist)
+            Search Results (Name, Artist)
           </Heading>
           <OrderedList>
             {top5Results?.map(song => (
               <ListItem key={song.id}>
-                { song.name } - { song.artist }
-                <Button size={'xs'} onClick={() => addToQueue(song)}>Add</Button>
+                {song.name} - {song.artist}
+                <Button size={'xs'} onClick={() => handleAddToQueue(song)}>
+                  Add
+                </Button>
               </ListItem>
             ))}
           </OrderedList>
         </Box>
-        <VolumeSlider value={50} onChange={(sliderValue: number) => changeSpotifyVolume(sliderValue)} />
+        <VolumeSlider
+          value={50}
+          onChange={(sliderValue: number) => changeSpotifyVolume(sliderValue)}
+        />
       </VStack>
     </Box>
   );

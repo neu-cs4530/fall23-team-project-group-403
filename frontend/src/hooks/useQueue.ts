@@ -24,7 +24,7 @@ export type Song = {
   startTime: number;
 };
 
-type QueueDoc = {
+export type QueueDoc = {
   name: string;
   townID: string;
   newTownName: string;
@@ -51,7 +51,19 @@ export function useQueue() {
   // Sort the upcoming songs queue by vote count (exclude the first song, which is the currently playing song)
   const sortedQueue = queue.length > 0 ? [queue[0], ...queue.slice(1).sort((a, b) => b.voteCount - a.voteCount)] : [];
 
+  /*
+   * Creates a new queue document in the database
+   * @param townID - ID of the town the queue is for
+   * @param newTownName - Name of the town the queue is for
+   * @returns - ID of the new queue document
+   * @throws - Error if townID or newTownName is empty
+   */
   const createNewQueue = async (townID: string, newTownName: string) => {
+
+    if (townID == '' || newTownName == '') {
+      throw new Error('Invalid townID or newTownName');
+    }
+
     try {
       // Add to Queue Collection
       const queueCollection = collection(db, 'Queue');
@@ -161,9 +173,27 @@ export function useQueue() {
       console.error('Error creating a new queue', error);
       return null;
     }
+
+    // Add to Queue Collection
+    const queueCollection = collection(db, 'Queue');
+    const newQueue = {
+      name: 'Test',
+      townID: townID || '',
+      newTownName: newTownName || '',
+      creationDate: new Date(),
+      // Hardcode the list of songs for this iteration
+      queue: [],
+    };
+    const docRef = await addDoc(queueCollection, newQueue);
+
+    return docRef.id;
   };
 
   useEffect(() => {
+    /*
+     * Fetches the queue from the database
+     * @returns - Function to unsubscribe from the onSnapshot listener
+     */
     const fetchQueue = async () => {
       if (townController?.townID) {
         const q = query(collection(db, 'Queue'), where('townID', '==', townController?.townID));
@@ -183,28 +213,39 @@ export function useQueue() {
     fetchQueue();
   }, [db, townController?.townID]);
 
+  /*
+   * Adds a song to the queue
+   * @param s - Song to add to the queue
+   * @throws - Error if the song already exists in the queue
+   */
   const addToQueue = async (s: Song) => {
     const queueCollection = collection(db, 'Queue');
     const q = query(queueCollection, where('townID', '==', townController?.townID));
     const querySnapshot = await getDocs(q);
-    // Check if the song already exists in the database
-    if (querySnapshot.empty) {
-      await addDoc(queueCollection, { id: s.id, name: s.name, artist: s.artist, voteCount: s.voteCount });
-    }
-    querySnapshot.forEach(async currentDoc => {
-        const docRef = doc(queueCollection, currentDoc.id);
-        const currentQueue = currentDoc.data().queue;
-        // Check if song is in queue
-        const songIndex = currentQueue.findIndex((song: Song) => song.id === s.id);
-        if (songIndex === -1) { 
-          // Song is not in queue
-          // Add the song to the queue
-          currentQueue.push(s);
-        }
-        // Update the queue in the document
-        await updateDoc(docRef, { queue: currentQueue });
-      });
-  }
+
+    const promises = querySnapshot.docs.map(async currentDoc => {
+      const docRef = doc(queueCollection, currentDoc.id);
+      const currentQueue = currentDoc.data().queue;
+
+      // Check if song is in queue
+      const songIndex = currentQueue.findIndex((song: Song) => song.id === s.id);
+
+      if (songIndex === -1) {
+        // Song is not in queue
+        // Add the song to the queue
+        currentQueue.push(s);
+      } else {
+        // Song is already in queue
+        throw new Error('Song already in the queue!');
+      }
+
+      // Update the queue in the document
+      await updateDoc(docRef, { queue: currentQueue });
+    });
+
+    // Wait for all promises to resolve or reject
+    await Promise.all(promises);
+  };
 
   const vote = async (songID: string, number: 1 | -1) => {
     const queueCollection = collection(db, 'Queue');
@@ -234,7 +275,6 @@ export function useQueue() {
       }
     });
   };
-  
 
   // Local helper to play a specific song (without a target device)
   const localPlaySongWithoutDevice = async (songURIs: string[], position: number) => {
