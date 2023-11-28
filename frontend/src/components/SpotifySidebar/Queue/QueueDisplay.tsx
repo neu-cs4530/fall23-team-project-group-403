@@ -25,8 +25,8 @@ export default function QueueDisplay(): JSX.Element {
     return <></>;
   }
 
-  const handleVoteSkipClick = () => {
-    console.log('Vote skip clicked, skipping song');
+  const handleSkipClick = () => {
+    console.log('Skip clicked, skipping song');
     // Call skip song
     skipSong();
   }
@@ -37,7 +37,7 @@ export default function QueueDisplay(): JSX.Element {
           Current Song
         </Heading>
         <Text>
-          {sortedQueue[0].name} <Button size='xs' onClick={handleVoteSkipClick}>Vote Skip</Button>
+          {sortedQueue[0].name} <Button size='xs' onClick={handleSkipClick}>Skip</Button>
         </Text>
         <Image src={sortedQueue[0].albumCover} width={20} />
 
