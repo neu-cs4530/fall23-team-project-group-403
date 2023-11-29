@@ -48,3 +48,58 @@ automatically connect to the town with the friendly name "DEBUG_TOWN" (creating 
 
 In the `frontend` directory, run `npm run dev` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
+
+### Spotify Jukebox specific instructions
+
+In the `frontend/.env` file, you'll need to add the following variables:
+
+```
+NEXT_PUBLIC_TOWNS_SERVICE_URL=http://localhost:8081
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDsvdfyDZG5-zERQqHsk77SqvRGg3jwssU
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=covey-403.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=covey-403
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=covey-403.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=762839545067
+NEXT_PUBLIC_FIREBASE_APP_ID=1:762839545067:web:fcfc57e34eea005cacbaae
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-24WD7BX3VW
+```
+
+In the `townService/.env` file, you'll need to add the following variables: (Set DEBUG_MODE to true for additional logs)
+
+```
+TWILIO_ACCOUNT_SID=<fill in>
+TWILIO_API_KEY_SID=<fill in>
+TWILIO_API_KEY_SECRET=<fill in>
+TWILIO_API_AUTH_TOKEN=<fill in>
+SPOTIFY_CLIENT_ID=33a6670b69934f33b1f91e7a196a3cd7 
+SPOTIFY_CLIENT_SECRET=f2d28a264ce24996a7592678f9d8269f
+BACKEND_URL=http://localhost:8081
+FRONTEND_URL=http://localhost:3000
+DEBUG_MODE=true
+```
+
+As specificed above, start the backend by running `npm start` in the `townService` directory
+```
+npm start
+```
+And the frontend by running `npm run dev` in the `frontend` directory
+```
+npm run dev
+```
+
+The Spotify portion of the application is still in devlopment mode, so only allowed users will be authorized to use the application.
+
+Send the email associated with your Spotify premium account to the following:
+
+Send:
+```
+<Full Name>, <example@email.com>
+```
+to
+```
+gaus.e@northeastern.edu
+```
+in order to be added as an allowed user.
+
+
+(there is a 6-8 week application and approval process to move it to public mode)
