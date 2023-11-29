@@ -78,7 +78,9 @@ FRONTEND_URL=http://localhost:3000
 DEBUG_MODE=true
 ```
 
-As specificed above, start the backend by running `npm start` in the `townService` directory
+As specified above, make sure you've run `npm install` in the frontend, townService, and the general project directory before starting the application.
+
+After that, start the backend by running `npm start` in the `townService` directory
 ```
 npm start
 ```
