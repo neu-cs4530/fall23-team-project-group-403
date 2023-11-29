@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Song, useQueue } from './useQueue';
+import { Song } from './useQueue';
 
+// Declare Typescript types for the Spotify Web Playback SDK
 type OAuthTokenCallback = (token: string) => void;
-
-// TODO - these global types are to temp disable eslint errors, im not sure if
-// we can define better types for them
 declare global {
   interface Window {
     onSpotifyWebPlaybackSDKReady: () => void;
@@ -13,41 +11,54 @@ declare global {
 }
 
 /*
- * Helper methods that interact with spotify API
+ * Hook to use Spotify Web Playback SDK and Spotify REST API
+ * @returns player - the Spotify player
+ * @returns searchForTrack - function to search for a track on Spotify
+ * @returns changeSpotifyVolume - function to change the volume of the Spotify player
+ * @returns transferSpotifyPlayback - function to transfer playback to a new device
+ * @returns localPlaySongOnSpotify - function to play a song on Spotify locally
  */
 export function useSpotify() {
-  const { sortedQueue } = useQueue();
-
   // Use state for the Spotify player
   const [player, setPlayer] = useState(undefined);
   const [spotifyToken, setSpotifyToken] = useState(sessionStorage.getItem('SPOTIFY_AUTH_TOKEN'));
 
-  // Function to transfer playback to a new device
+  // Helper method to send a Spotify REST API
+  const sendSpotifyRequest = async (url: string, method: string, body: string) => {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: 'Bearer ' + spotifyToken || '',
+      },
+      body: body,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error: ' + response.status);
+    }
+
+    return response;
+  };
+
+  /*
+   * Transfer playback to a new device
+   * @param deviceID - the ID of the device to transfer playback to
+   * @param resumePlay - whether or not to resume playback on the new device
+   */
   const transferSpotifyPlayback = async (deviceID: string, resumePlay: boolean) => {
     const url = 'https://api.spotify.com/v1/me/player';
     const body = {
       device_ids: [deviceID],
-      play: resumePlay
+      play: resumePlay,
     };
 
     try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + spotifyToken || '',
-        },
-        body: JSON.stringify(body)
-      });
-
-      if (!response.ok) {
-        throw new Error('Error: ' + response.status);
-      }
-
+      await sendSpotifyRequest(url, 'PUT', JSON.stringify(body));
       console.log('Playback transfer successful');
     } catch (error) {
       console.error('Error transferring playback: ', error);
     }
-  }
+  };
 
   useEffect(() => {
     // Load the Spotify Web Playback SDK script
@@ -87,16 +98,16 @@ export function useSpotify() {
     };
   }, []); // We just want playback transferred once (at the beginning, not every time the queue updates)
 
+  /*
+   * Search for a track on Spotify
+   * @param trackName - the name of the track to search for
+   */
   const searchForTrack = async (trackName: string) => {
     // Send request to spotify API /search, limit by track and first 10 elements
-    return await fetch(
+    return await sendSpotifyRequest(
       'https://api.spotify.com/v1/search?q=track%3A' + trackName + '&type=track&limit=10',
-      {
-        method: 'GET',
-        headers: {
-          Authorization: 'Bearer ' + spotifyToken || '',
-        },
-      },
+      'GET',
+      '',
     )
       .then(response => response.json())
       .then(data => {
@@ -120,26 +131,56 @@ export function useSpotify() {
       });
   };
 
+  /*
+   * Change the volume of the Spotify player
+   * @param volume - the volume to change to (0-100)
+   */
   const changeSpotifyVolume = async (volume: number) => {
     const url = `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`;
-  
+
     try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: 'Bearer ' + spotifyToken || '',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Error: ' + response.status);
-      }
-  
+      await sendSpotifyRequest(url, 'PUT', '');
       console.log('Volume changed successfully: ' + volume);
     } catch (error) {
       console.error('Error changing volume: ', error);
     }
   };
 
-  return { player, searchForTrack, changeSpotifyVolume, transferSpotifyPlayback: transferSpotifyPlayback };
+  /*
+   * Helper to play a song on spotify locally
+   * @param songURIs - Array of song URIs to play
+   * @param position - Position in milliseconds to start the song at
+   * @param deviceID - ID of the device to play the song on
+   */
+  const localPlaySongOnSpotify = async (
+    songURIs: string[],
+    position: number,
+    deviceID: string = '',
+  ) => {
+    // If deviceID is specified, explicitly play on that device
+    const url =
+      deviceID === ''
+        ? 'https://api.spotify.com/v1/me/player/play'
+        : 'https://api.spotify.com/v1/me/player/play' + '?device_id=' + deviceID;
+
+    const body = {
+      uris: songURIs,
+      position_ms: position,
+    };
+
+    try {
+      await sendSpotifyRequest(url, 'PUT', JSON.stringify(body));
+      console.log('Started playing successfully: ' + songURIs);
+    } catch (error) {
+      console.error('Error starting playback: ', error);
+    }
+  };
+
+  return {
+    player,
+    searchForTrack,
+    changeSpotifyVolume,
+    transferSpotifyPlayback: transferSpotifyPlayback,
+    localPlaySongOnSpotify,
+  };
 }
