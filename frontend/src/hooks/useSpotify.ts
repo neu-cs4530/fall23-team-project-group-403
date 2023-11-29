@@ -25,13 +25,21 @@ export function useSpotify() {
 
   // Helper method to send a Spotify REST API
   const sendSpotifyRequest = async (url: string, method: string, body: string) => {
-    const response = await fetch(url, {
+    const headers = {
+      Authorization: 'Bearer ' + spotifyToken || '',
+    };
+
+    const options: RequestInit = {
       method: method,
-      headers: {
-        Authorization: 'Bearer ' + spotifyToken || '',
-      },
-      body: body,
-    });
+      headers: headers,
+    };
+
+    // Include the body only if the request method is not GET
+    if (method !== 'GET') {
+      options.body = body;
+    }
+
+    const response = await fetch(url, options);
 
     if (!response.ok) {
       throw new Error('Error: ' + response.status);

@@ -42,7 +42,15 @@ const SettingsDisplay = () => {
 
   // Debounce search call, waits 300 ms before calling search API
   const debouncedSearch = debounce(async () => {
-    const searchResults = await searchForTrack(inputRef.current?.value || '');
+    const inputValue = inputRef.current?.value;
+
+    // Check if the input value is empty
+    if (!inputValue) {
+      setSongResults(null);
+      return;
+    }
+
+    const searchResults = await searchForTrack(inputValue);
     setSongResults(searchResults);
   }, 300);
 

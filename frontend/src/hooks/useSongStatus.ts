@@ -39,6 +39,19 @@ export function useSongStatus() {
         // A buffer if we want to update the song early (ie 5 seconds before the song is over)
         const buffer = 0; // -5000; // 5 second buffer
         const endTime = sortedQueue[0].startTime + sortedQueue[0].duration + buffer;
+        // If now is past the end time, the song is over
+        if (Date.now() >= endTime) {
+          console.log('Song is over, calling updateCurrentlyPlayingSong');
+          // Call with the currently playing URI to prevent duplicate skips
+          updateCurrentlyPlayingSong(true, sortedQueue[0].uri);
+        }
+
+        // If the songs don't match, that means someone else skipped / ended the song
+        // So we want to update the currently playing song (with false so it doesn't skip) so that it plays the correct song
+        if (sortedQueue[0].uri !== sessionStorage.getItem('SPOTIFY_CURRENTLY_PLAYING_URI')) {
+          console.log("Songs don't match, calling updateCurrentlyPlayingSong");
+          updateCurrentlyPlayingSong(false, '');
+        }
 
         // If now is past the end time, the song is over
         if (Date.now() >= endTime) {
