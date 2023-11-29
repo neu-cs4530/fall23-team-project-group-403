@@ -122,7 +122,7 @@ const SettingsDisplay = () => {
           <Heading fontSize='l' as='h3' marginBottom={1}>
             Search Results (Name, Artist)
           </Heading>
-          <Box maxHeight={200} overflowY='auto'>
+          <Box maxHeight={250} overflowY='auto'>
             <OrderedList>
               {top5Results?.map(song => (
                 <ListItem key={song.id}>

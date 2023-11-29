@@ -46,10 +46,10 @@ export default function QueueDisplay(): JSX.Element {
       <Heading fontSize='xl' as='h3' marginY={2}>
         Upcoming Songs
       </Heading>
-      <Box maxHeight={200} overflowY='auto'>
+      <Box maxHeight={350} overflowY='auto' >
         <OrderedList>
           {sortedQueue.slice(1).map(song => (
-            <ListItem key={song.id}>
+            <ListItem key={song.id} marginLeft='2'>
               <SongBox
                 song={song}
                 onUpvote={() => {
