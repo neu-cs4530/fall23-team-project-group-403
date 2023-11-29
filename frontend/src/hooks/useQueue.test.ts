@@ -34,6 +34,17 @@ describe('useQueue', () => {
     startTime: 0,
   };
 
+  const defaultSong: Song = {
+    albumCover: 'https://i.scdn.co/image/ab67616d0000b27315ebbedaacef61af244262a8',
+    artist: 'Rick Astley',
+    duration: 213573,
+    id: '4PTG3Z6ehGkBFwjybzWkR8',
+    name: 'Never Gonna Give You Up',
+    startTime: 1701232563772,
+    uri: 'spotify:track:4PTG3Z6ehGkBFwjybzWkR8',
+    voteCount: 0,
+  };
+
   beforeEach(() => {
     mockedDoc.mockReturnValue({
       update: mockedUpdateDoc,
@@ -310,6 +321,56 @@ describe('useQueue', () => {
       });
 
       // Wait for any asynchronous operations to complete
+      await waitFor(() => expect(mockedUpdateDoc).not.toHaveBeenCalled());
+    });
+  });
+
+  describe('updateCurrentlyPlayingSong tests', () => {
+    it('updateCurrentlyPlayingSong should update the song when true is passed', async () => {
+      const { result } = renderHook(() => useQueue());
+
+      const mockedGetDocs = getDocs as jest.Mock;
+
+      mockedGetDocs.mockReturnValueOnce([
+        {
+          id: 'mocked-doc-id',
+          data: () => ({
+            queue: [song1],
+          }),
+        },
+      ]);
+
+      await act(async () => {
+        // Call the updateCurrentlyPlayingSong method
+        await result.current.updateCurrentlyPlayingSong(true, song1.uri);
+      });
+
+      // Verify the document has been updated
+      await waitFor(() => expect(mockedUpdateDoc).toHaveBeenCalled());
+    });
+  });
+
+  describe('updateCurrentlyPlayingSong tests', () => {
+    it('updateCurrentlyPlayingSong should not update document when false is passed', async () => {
+      const { result } = renderHook(() => useQueue());
+
+      const mockedGetDocs = getDocs as jest.Mock;
+
+      mockedGetDocs.mockReturnValueOnce([
+        {
+          id: 'mocked-doc-id',
+          data: () => ({
+            queue: [song1],
+          }),
+        },
+      ]);
+
+      await act(async () => {
+        // Call the updateCurrentlyPlayingSong method
+        await result.current.updateCurrentlyPlayingSong(false, song1.uri);
+      });
+
+      // Verify the document has been updated
       await waitFor(() => expect(mockedUpdateDoc).not.toHaveBeenCalled());
     });
   });
