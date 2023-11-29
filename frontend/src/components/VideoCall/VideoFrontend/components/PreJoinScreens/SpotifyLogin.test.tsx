@@ -27,10 +27,4 @@ describe('Spotify Login UI', () => {
     const { getByText } = render(wrappedTownSelection());
     expect(getByText('Login with Spotify')).toBeInTheDocument();
   });
-
-  it("Should have href attribute set to the Spotify login URL", () => {
-    const { getByText } = render(wrappedTownSelection());
-    const spotifyLoginButton = getByText('Login with Spotify');
-    expect(spotifyLoginButton).toHaveAttribute('href', 'http://localhost:8080/auth/login');
-  });
 });

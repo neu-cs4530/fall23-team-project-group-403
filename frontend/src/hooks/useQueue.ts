@@ -12,6 +12,7 @@ import {
 import { useContext, useEffect, useState } from 'react';
 
 import context from '../contexts/TownControllerContext';
+import { useSpotify } from './useSpotify';
 
 export type Song = {
   id: string; // Spotify Track ID
@@ -32,10 +33,14 @@ export type QueueDoc = {
   queue: Song[];
 };
 
+/*
+ * Hook to manage the Firebase firestore queue
+ * @returns - queue, sortedQueue, createNewQueue, vote, addToQueue, updateCurrentlyPlayingSong, skipSong
+ */
 export function useQueue() {
-  const [spotifyToken, setSpotifyToken] = useState(sessionStorage.getItem('SPOTIFY_AUTH_TOKEN'));
   const db = getFirestore();
   const townController = useContext(context);
+  const { localPlaySongOnSpotify } = useSpotify();
 
   const defaultSong = {
     id: '4PTG3Z6ehGkBFwjybzWkR8',
@@ -46,10 +51,12 @@ export function useQueue() {
     albumCover: 'https://i.scdn.co/image/ab67616d0000b27315ebbedaacef61af244262a8',
     duration: 213573,
     startTime: Date.now(),
-  }
+  };
+
   const [queue, setQueue] = useState<Song[]>([]);
   // Sort the upcoming songs queue by vote count (exclude the first song, which is the currently playing song)
-  const sortedQueue = queue.length > 0 ? [queue[0], ...queue.slice(1).sort((a, b) => b.voteCount - a.voteCount)] : [];
+  const sortedQueue =
+    queue.length > 0 ? [queue[0], ...queue.slice(1).sort((a, b) => b.voteCount - a.voteCount)] : [];
 
   /*
    * Creates a new queue document in the database
@@ -59,7 +66,6 @@ export function useQueue() {
    * @throws - Error if townID or newTownName is empty
    */
   const createNewQueue = async (townID: string, newTownName: string) => {
-
     if (townID == '' || newTownName == '') {
       throw new Error('Invalid townID or newTownName');
     }
@@ -72,7 +78,7 @@ export function useQueue() {
         townID: townID || '',
         newTownName: newTownName || '',
         creationDate: new Date(),
-        // Hardcode the list of songs for this iteration
+        // Hardcode default list of songs initially in the queue
         queue: [
           {
             id: '7to68V64Cu6zk0UDo5tyw3',
@@ -173,20 +179,6 @@ export function useQueue() {
       console.error('Error creating a new queue', error);
       return null;
     }
-
-    // Add to Queue Collection
-    const queueCollection = collection(db, 'Queue');
-    const newQueue = {
-      name: 'Test',
-      townID: townID || '',
-      newTownName: newTownName || '',
-      creationDate: new Date(),
-      // Hardcode the list of songs for this iteration
-      queue: [],
-    };
-    const docRef = await addDoc(queueCollection, newQueue);
-
-    return docRef.id;
   };
 
   useEffect(() => {
@@ -215,10 +207,10 @@ export function useQueue() {
 
   /*
    * Adds a song to the queue
-   * @param s - Song to add to the queue
+   * @param newSong - Song to add to the queue
    * @throws - Error if the song already exists in the queue
    */
-  const addToQueue = async (s: Song) => {
+  const addToQueue = async (newSong: Song) => {
     const queueCollection = collection(db, 'Queue');
     const q = query(queueCollection, where('townID', '==', townController?.townID));
     const querySnapshot = await getDocs(q);
@@ -228,12 +220,12 @@ export function useQueue() {
       const currentQueue = currentDoc.data().queue;
 
       // Check if song is in queue
-      const songIndex = currentQueue.findIndex((song: Song) => song.id === s.id);
+      const songIndex = currentQueue.findIndex((song: Song) => song.id === newSong.id);
 
       if (songIndex === -1) {
         // Song is not in queue
         // Add the song to the queue
-        currentQueue.push(s);
+        currentQueue.push(newSong);
       } else {
         // Song is already in queue
         throw new Error('Song already in the queue!');
@@ -247,6 +239,11 @@ export function useQueue() {
     await Promise.all(promises);
   };
 
+  /*
+   * Adds a vote to a song in the queue by modifiying the voteCount
+   * @param songID - ID of the song to add a vote to
+   * @param number - Number of votes to add, either (1 or -1)
+   */
   const vote = async (songID: string, number: 1 | -1) => {
     const queueCollection = collection(db, 'Queue');
     const q = query(queueCollection, where('townID', '==', townController?.townID));
@@ -276,44 +273,11 @@ export function useQueue() {
     });
   };
 
-  // Local helper to play a specific song (without a target device)
-  const localPlaySongOnSpotify = async (songURIs: string[], position: number, deviceID: string = '') => {
-
-    let url = ''
-    if (deviceID === '') {
-      url = 'https://api.spotify.com/v1/me/player/play';
-    } else {
-      url = 'https://api.spotify.com/v1/me/player/play' + '?device_id=' + deviceID;
-    }
-
-    const body = {
-      uris: songURIs,
-      position_ms: position,
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: 'Bearer ' + spotifyToken || '',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error: ' + response.status);
-      }
-
-      // console.log('Playback device: ' + deviceID);
-      console.log('Started playing successfully: ' + songURIs);
-    } catch (error) {
-      console.error('Error starting playback: ', error);
-    }
-  };
-
-  // Helper to update the currently playing song (used for skip, and when a song ends)
-  // shoouldChangeSong is a boolean that determines if the song should be changed (ie skipped, or if it should just play the currently playing song)
-  // currentURI is the URI of the currently playing song (used as confirmation to prevent double skips) (used to check if the song was skipped by someone else)
+  /*
+   * Helper to update the currently playing song (used for skip, and when a song ends)
+   * @param shouldChangeSong - boolean that determines if the song should be changed (ie skipped, or if it should just play the currently playing song)
+   * @param currentURI - URI of the currently playing song (used as confirmation to prevent double skips) (used to check if the song was skipped by someone else)
+   */
   const updateCurrentlyPlayingSong = async (shouldChangeSong: boolean, currentURI: string) => {
     // Get this town ID's queue
     const queueCollection = collection(db, 'Queue');
@@ -325,10 +289,13 @@ export function useQueue() {
       const currentQueue: Song[] = currentDoc.data().queue;
 
       // When we get the queue, it's unsorted, so we have to sort it
-      const localSortedQueue = [currentQueue[0], ...currentQueue.slice(1).sort((a, b) => b.voteCount - a.voteCount)]
+      const localSortedQueue = [
+        currentQueue[0],
+        ...currentQueue.slice(1).sort((a, b) => b.voteCount - a.voteCount),
+      ];
 
       // Get the currently playing song
-      let currentlyPlayingSong = localSortedQueue[0]
+      let currentlyPlayingSong = localSortedQueue[0];
 
       if (currentlyPlayingSong.uri !== currentURI) {
         // This means that the song was skipped by someone else already, so shouldChangeSong should be false
@@ -350,14 +317,26 @@ export function useQueue() {
         newQueue[0].startTime = Date.now();
 
         // Update the queue in the document
-        await updateDoc(docRef, { queue: newQueue});
+        await updateDoc(docRef, { queue: newQueue });
 
         // Set currently playing
         currentlyPlayingSong = newQueue[0];
       }
       // Play the currently playing song
-      const songStartPosition = currentlyPlayingSong.startTime !== 0 ? Date.now() - currentlyPlayingSong.startTime : 0
-      console.log("Calling localPlaySongOnSpotify: on device: " + sessionStorage.getItem('SPOTIFY_DEVICE_ID') + "; Playing" + currentlyPlayingSong.name + ", " + currentlyPlayingSong.uri + " - at time: " + songStartPosition)
+      const songStartPosition =
+        currentlyPlayingSong.startTime !== 0 ? Date.now() - currentlyPlayingSong.startTime : 0;
+
+      console.log(
+        'Calling localPlaySongOnSpotify: on device: ' +
+          sessionStorage.getItem('SPOTIFY_DEVICE_ID') +
+          '; Playing' +
+          currentlyPlayingSong.name +
+          ', ' +
+          currentlyPlayingSong.uri +
+          ' - at time: ' +
+          songStartPosition,
+      );
+
       // Update the currently playing song var
       sessionStorage.setItem('SPOTIFY_CURRENTLY_PLAYING_URI', currentlyPlayingSong.uri);
       // Call the local helper to play the song
@@ -367,8 +346,11 @@ export function useQueue() {
         sessionStorage.getItem('SPOTIFY_DEVICE_ID') || '',
       );
     });
-  }
+  };
 
+  /*
+   * Helper to skip the currently playing song
+   */
   const skipSong = async () => {
     // Instead of skipping directly, make the song over in the db (time wise) by setting the start time to zero
     // (so the isSongOver hook catches it for everyone)
@@ -385,9 +367,9 @@ export function useQueue() {
       currentQueue[0].startTime = 0;
 
       // Update the queue in the document
-      await updateDoc(docRef, { queue: currentQueue});
+      await updateDoc(docRef, { queue: currentQueue });
     });
-  }
+  };
 
   return { createNewQueue, sortedQueue, vote, addToQueue, updateCurrentlyPlayingSong, skipSong };
 }

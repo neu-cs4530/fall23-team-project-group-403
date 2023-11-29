@@ -29,21 +29,24 @@ export default function QueueDisplay(): JSX.Element {
     console.log('Skip clicked, skipping song');
     // Call skip song
     skipSong();
-  }
+  };
 
   return (
     <Box>
-        <Heading fontSize='xl' as='h3'>
-          Current Song
-        </Heading>
-        <Text>
-          {sortedQueue[0].name} <Button size='xs' onClick={handleSkipClick}>Skip</Button>
-        </Text>
-        <Image src={sortedQueue[0].albumCover} width={20} />
-
-        <Heading fontSize='xl' as='h3'>
-          Upcoming Songs
-        </Heading>
+      <Heading fontSize='xl' as='h3'>
+        Current Song
+      </Heading>
+      <Text marginBottom={2}>
+        {sortedQueue[0].name + ' by ' + sortedQueue[0].artist}
+        <Button marginX={2} size='xs' onClick={handleSkipClick}>
+          Skip
+        </Button>
+      </Text>
+      <Image src={sortedQueue[0].albumCover} width={20} />
+      <Heading fontSize='xl' as='h3' marginY={2}>
+        Upcoming Songs
+      </Heading>
+      <Box maxHeight={200} overflowY='auto'>
         <OrderedList>
           {sortedQueue.slice(1).map(song => (
             <ListItem key={song.id}>
@@ -69,6 +72,7 @@ export default function QueueDisplay(): JSX.Element {
             </ListItem>
           ))}
         </OrderedList>
+      </Box>
     </Box>
   );
 }

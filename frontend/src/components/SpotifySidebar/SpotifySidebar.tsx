@@ -15,9 +15,11 @@ export default function SpotifySidebar(): JSX.Element {
     <VStack
       align='left'
       spacing={5}
+      minWidth='250px'
+      width='250px'
       border='2px'
       padding={2}
-      marginLeft={2}
+      marginRight={2}
       borderColor='gray.500'
       height='100%'
       divider={<StackDivider borderColor='gray.200' />}

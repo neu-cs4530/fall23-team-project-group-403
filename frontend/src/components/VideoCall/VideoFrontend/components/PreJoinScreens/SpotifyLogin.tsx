@@ -1,8 +1,10 @@
 import React from 'react';
-import { Box, Button, Heading } from '@chakra-ui/react';
+import { Box, Button, Heading, Link } from '@chakra-ui/react';
+import Check from '@material-ui/icons/Check';
 
 export default function SpotifyLogin(): JSX.Element {
   const loginURL = `${process.env.NEXT_PUBLIC_TOWNS_SERVICE_URL}/auth/login`;
+  const token = sessionStorage.getItem('SPOTIFY_AUTH_TOKEN');
 
   return (
     <Box borderWidth='1px' borderRadius='lg' my={2}>
@@ -10,11 +12,12 @@ export default function SpotifyLogin(): JSX.Element {
         Spotify Capabilities
       </Heading>
       <Box>
-        <Button m={4}>
-          <a className='btn-spotify' href={loginURL}>
+        <Link href={loginURL}>
+          <Button className='btn-spotify' m={4}>
             Login with Spotify
-          </a>
-        </Button>
+          </Button>
+        </Link>
+        {token && <Check />}
       </Box>
     </Box>
   );

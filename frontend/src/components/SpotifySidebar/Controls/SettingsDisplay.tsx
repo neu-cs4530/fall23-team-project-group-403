@@ -7,7 +7,6 @@ import {
   OrderedList,
   ListItem,
   Button,
-  toast,
   useToast,
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
@@ -43,7 +42,15 @@ const SettingsDisplay = () => {
 
   // Debounce search call, waits 300 ms before calling search API
   const debouncedSearch = debounce(async () => {
-    const searchResults = await searchForTrack(inputRef.current?.value || '');
+    const inputValue = inputRef.current?.value;
+
+    // Check if the input value is empty
+    if (!inputValue) {
+      setSongResults(null);
+      return;
+    }
+
+    const searchResults = await searchForTrack(inputValue);
     setSongResults(searchResults);
   }, 300);
 
@@ -115,16 +122,18 @@ const SettingsDisplay = () => {
           <Heading fontSize='l' as='h3' marginBottom={1}>
             Search Results (Name, Artist)
           </Heading>
-          <OrderedList>
-            {top5Results?.map(song => (
-              <ListItem key={song.id}>
-                {song.name} - {song.artist}
-                <Button size={'xs'} onClick={() => handleAddToQueue(song)}>
-                  Add
-                </Button>
-              </ListItem>
-            ))}
-          </OrderedList>
+          <Box maxHeight={200} overflowY='auto'>
+            <OrderedList>
+              {top5Results?.map(song => (
+                <ListItem key={song.id}>
+                  {song.name} - {song.artist}
+                  <Button size={'xs'} onClick={() => handleAddToQueue(song)}>
+                    Add
+                  </Button>
+                </ListItem>
+              ))}
+            </OrderedList>
+          </Box>
         </Box>
         <VolumeSlider
           value={50}
